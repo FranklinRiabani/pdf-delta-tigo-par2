@@ -50,7 +50,15 @@
 					"name": "dimHora"
 				}
 			],
-			"sinks": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_hechos_llamadas",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
 			"transformations": [
 				{
 					"name": "lookup1"
@@ -66,6 +74,9 @@
 				},
 				{
 					"name": "lookup5"
+				},
+				{
+					"name": "select1"
 				}
 			],
 			"scriptLines": [
@@ -146,7 +157,36 @@
 				"lookup4, dimHora lookup(source1@hora == dimHora@hora,",
 				"     multiple: false,",
 				"     pickup: 'any',",
-				"     broadcast: 'auto')~> lookup5"
+				"     broadcast: 'auto')~> lookup5",
+				"lookup5 select(mapColumn(",
+				"          duracion,",
+				"          id_tipo,",
+				"          id_origen,",
+				"          id_destino,",
+				"          id_fecha,",
+				"          id_hora",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> select1",
+				"select1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_llamadas as integer,",
+				"          duracion as integer,",
+				"          id_tipo as integer,",
+				"          id_origen as integer,",
+				"          id_destino as integer,",
+				"          id_fecha as integer,",
+				"          id_hora as integer",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> sink1"
 			]
 		}
 	}
