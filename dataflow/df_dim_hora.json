@@ -1,0 +1,34 @@
+{
+	"name": "df_dim_hora",
+	"properties": {
+		"folder": {
+			"name": "Gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_sql_silver_llamadas_tigo",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          hora as timestamp,",
+				"          hora24 as integer,",
+				"          hora12 as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'select \\nDISTINCT hora as hora,\\nDATEPART (hour,hora) as hora24,\\nformat (hora, \\'hh\\') as hora12\\nfrom SILVER.LLAMADAS_TIGO',",
+				"     format: 'query') ~> source1"
+			]
+		}
+	}
+}
